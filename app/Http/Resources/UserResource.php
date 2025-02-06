@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\Api;
+namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AttendeeController extends JsonResource
+class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

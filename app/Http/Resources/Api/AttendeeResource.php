@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class EventController extends JsonResource
+class AttendeeResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

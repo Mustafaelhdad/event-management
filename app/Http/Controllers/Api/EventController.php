@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\EventResource;
 use App\Http\Traits\CanLoadRelationships;
 use App\Models\Event;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class EventController extends Controller

@@ -4,23 +4,34 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\AttendeeResource;
+use App\Http\Traits\CanLoadRelationships;
 use App\Models\Attendee;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
 class AttendeeController extends Controller
 {
+    use CanLoadRelationships;
+
+    private readonly array $relations;
+
+    public function __construct()
+    {
+        $this->relations = ['user', 'event'];
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Event $event)
     {
-        // return the attendees using attendeeController
+        // Get attendees for the event
         $attendees = $event->attendees()->latest();
 
-        return AttendeeResource::collection(
-            $attendees->paginate()
-        );
+        // Apply dynamic relationship loading
+        $this->loadRelationships($attendees, $this->relations);
+
+        return AttendeeResource::collection($attendees->paginate());
     }
 
     /**
@@ -32,7 +43,7 @@ class AttendeeController extends Controller
             'user_id' => 1
         ]);
 
-        return new AttendeeResource($attendee);
+        return new AttendeeResource($this->loadRelationships($attendee, $this->relations));
     }
 
     /**
@@ -43,15 +54,24 @@ class AttendeeController extends Controller
         // Find the attendee within the event
         $attendee = $event->attendees()->findOrFail($attendeeId);
 
+        // Apply relationship loading
+        $this->loadRelationships($attendee, $this->relations);
+
         return new AttendeeResource($attendee);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Event $event, Attendee $attendee)
     {
-        //
+        $validationData = $request->validate([
+            'user_id' => 'sometimes|required|exists:users,id',
+        ]);
+
+        $attendee->update($validationData);
+
+        return new AttendeeResource($this->loadRelationships($attendee, $this->relations));
     }
 
     /**

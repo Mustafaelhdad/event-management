@@ -8,6 +8,7 @@ use App\Http\Traits\CanLoadRelationships;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Gate;
 
 class EventController extends BaseController
 {
@@ -73,6 +74,12 @@ class EventController extends BaseController
      */
     public function update(Request $request, Event $event)
     {
+        if (Gate::denies('update-event', $event)) {
+            abort(403, 'You are not allowed to update this event');
+        }
+
+        // Gate::authorize('update-event', $event);
+
         $validationData = $request->validate([
             'name' => 'sometimes|required|string',
             'description' => 'nullable|string',

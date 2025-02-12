@@ -9,9 +9,11 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class EventController extends BaseController
 {
+    use AuthorizesRequests;
     use CanLoadRelationships;
     private readonly array $relations;
 
@@ -19,6 +21,7 @@ class EventController extends BaseController
     {
         $this->relations = ['user', 'attendees', 'attendees.user'];
         $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->authorizeResource(Event::class, 'event');
     }
 
     /**
@@ -74,9 +77,9 @@ class EventController extends BaseController
      */
     public function update(Request $request, Event $event)
     {
-        if (Gate::denies('update-event', $event)) {
-            abort(403, 'You are not allowed to update this event');
-        }
+        // if (Gate::denies('update-event', $event)) {
+        //     abort(403, 'You are not allowed to update this event');
+        // }
 
         // Gate::authorize('update-event', $event);
 

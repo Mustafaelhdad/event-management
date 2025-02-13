@@ -2,7 +2,10 @@
 
 namespace App\Console\Commands;
 
+namespace App\Console\Commands;
+
 use App\Models\Event;
+use App\Notifications\EventReminderNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -30,7 +33,9 @@ class SendEmailReminders extends Command
         $this->info('Fetching events happening in the next 24 hours...');
 
         // Get events starting in the next 24 hours
-        $events = Event::whereBetween('start_time', [now(), now()->addDay()])->with('attendees.user')->get();
+        $events = Event::whereBetween('start_time', [now(), now()->addDay()])
+            ->with('attendees.user')
+            ->get();
 
         $eventCount = $events->count();
         $eventLabel = Str::plural('event', $eventCount);
@@ -46,9 +51,10 @@ class SendEmailReminders extends Command
             foreach ($event->attendees as $attendee) {
                 $user = $attendee->user;
 
-                if ($user && $user->email) {
-                    // Send email reminder
-                    // Mail::to($user->email)->send(new EventReminderMail($event, $user));
+                if ($user) {
+                    // ✅ Use Notification instead of Mail::to()
+                    $user->notify(new EventReminderNotification($event));
+
                     $this->info("Reminder sent to {$user->email} for event: {$event->name}");
                 }
             }
